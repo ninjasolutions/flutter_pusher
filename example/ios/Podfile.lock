@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_pusher: 6fc89a94ea522f2219465ee5b1ede871d40d8b50
+  flutter_pusher: bf53c22223841143bad4ece3ed0d21a659ec256f
   libPusher: b7fcf16e2db51c37915613652311d66065743ead
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
 

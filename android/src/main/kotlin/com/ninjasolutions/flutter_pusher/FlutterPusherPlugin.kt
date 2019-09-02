@@ -20,8 +20,7 @@ import org.json.JSONObject
 import java.lang.Exception
 import org.json.JSONArray
 
-
-class PusherFlutterPlugin() : MethodCallHandler, ConnectionEventListener {
+class FlutterPusherPlugin() : MethodCallHandler, ConnectionEventListener {
 
   var pusher: Pusher? = null
   val messageStreamHandler = MessageStreamHandler()
@@ -31,7 +30,7 @@ class PusherFlutterPlugin() : MethodCallHandler, ConnectionEventListener {
   companion object {
     @JvmStatic
     fun registerWith(registrar: Registrar): Unit {
-      val instance = PusherFlutterPlugin()
+      val instance = FlutterPusherPlugin()
       val channel = MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher")
       channel.setMethodCallHandler(instance)
       val connectionEventChannel = EventChannel(registrar.messenger(),
