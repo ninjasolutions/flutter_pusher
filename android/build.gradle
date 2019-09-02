@@ -1,4 +1,4 @@
-group 'com.example.flutter_pusher'
+group 'com.ninjasolutions.flutter_pusher'
 version '1.0-SNAPSHOT'
 
 buildscript {

@@ -1,4 +1,4 @@
-package com.example.flutter_pusher_example
+package com.ninjasolutions.flutter_pusher_example
 
 import android.os.Bundle
 
