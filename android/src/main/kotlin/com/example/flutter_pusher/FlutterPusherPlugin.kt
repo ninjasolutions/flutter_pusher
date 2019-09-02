@@ -32,16 +32,16 @@ class PusherFlutterPlugin() : MethodCallHandler, ConnectionEventListener {
     @JvmStatic
     fun registerWith(registrar: Registrar): Unit {
       val instance = PusherFlutterPlugin()
-      val channel = MethodChannel(registrar.messenger(), "plugins.apptreesoftware.com/pusher")
+      val channel = MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher")
       channel.setMethodCallHandler(instance)
       val connectionEventChannel = EventChannel(registrar.messenger(),
-              "plugins.apptreesoftware.com/pusher_connection")
+              "plugins.indoor.solutions/pusher_connection")
       connectionEventChannel.setStreamHandler(instance.connectionStreamHandler)
       val messageEventChannel = EventChannel(registrar.messenger(),
-              "plugins.apptreesoftware.com/pusher_message")
+              "plugins.indoor.solutions/pusher_message")
       messageEventChannel.setStreamHandler(instance.messageStreamHandler)
 
-      val errorEventChannel = EventChannel(registrar.messenger(), "plugins.apptreesoftware.com/pusher_error")
+      val errorEventChannel = EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusher_error")
       errorEventChannel.setStreamHandler(instance.errorStreamHandler)
     }
   }

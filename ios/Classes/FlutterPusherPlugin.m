@@ -3,7 +3,7 @@
 @implementation FlutterPusherPlugin
 
 NSString *const PUSHER_CHANNEL_NAME = @"plugins.indoor.solutions/pusher";
-NSString *const PUSHER_CONNECTION_CHANNEL_NAME = @"plugins.apptreesoftware.com/pusher_connection";
+NSString *const PUSHER_CONNECTION_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_connection";
 NSString *const PUSHER_MESSAGE_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_message";
 NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_error";
 
@@ -82,7 +82,14 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
     if ([call.method isEqualToString:@"create"]) {
         NSString *apiKey = call.arguments[@"apiKey"];
         NSString *cluster = call.arguments[@"cluster"];
+        NSString *authUrl = call.arguments[@"authUrl"];
+        
         self.pusher = [PTPusher pusherWithKey:apiKey delegate:self encrypted:YES cluster:cluster];
+        
+        if ([authUrl length] > 0) {
+            self.pusher.authorizationURL = [NSURL URLWithString:authUrl];
+        }
+        
         result(@(YES));
     } else if ([call.method isEqualToString:@"connect"]) {
         [self.pusher connect];
@@ -110,7 +117,7 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
             channel = [self.pusher subscribeToPrivateChannelNamed:channelName];
         }
         
-        [self listenToChannel:channel forEvent:event];
+        [self listenToPrivateChannel:channel forEvent:event];
         result(@(YES));
     } else if ([call.method isEqualToString:@"unsubscribe"]) {
         PTPusherChannel *channel = [self.pusher channelNamed:call.arguments];
@@ -125,7 +132,13 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
 
 - (void)listenToChannel:(PTPusherChannel *)channel forEvent:(NSString *)event {
     [channel bindToEventNamed:event handleWithBlock:^(PTPusherEvent *e) {
-        [_messageStreamHandler send:channel.name event:event body:e.data];
+        [self->_messageStreamHandler send:channel.name event:event body:e.data];
+    }];
+}
+
+- (void)listenToPrivateChannel:(PTPusherChannel *)channel forEvent:(NSString *)event {
+    [channel bindToEventNamed:event handleWithBlock:^(PTPusherEvent *e) {
+        [self->_messageStreamHandler send:channel.name event:event body:e.data];
     }];
 }
 

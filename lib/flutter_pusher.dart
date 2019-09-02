@@ -20,12 +20,18 @@ class PusherFlutter {
   /// Creates a [PusherFlutter] with the specified [apiKey] from pusher.
   ///
   /// The [apiKey] may not be null.
-  PusherFlutter(String apiKey, {String cluster}) {
+  PusherFlutter(String apiKey, {String cluster, String authUrl}) {
     _channel = MethodChannel('plugins.indoor.solutions/pusher');
     var args = {"apiKey": apiKey};
+
     if (cluster != null) {
       args["cluster"] = cluster;
     }
+
+    if (authUrl != null) {
+      args["authUrl"] = authUrl;
+    }
+
     _channel.invokeMethod('create', args);
     _connectivityEventChannel =
         EventChannel('plugins.indoor.solutions/pusher_connection');
@@ -68,8 +74,8 @@ class PusherFlutter {
   /// provided to be delivered to the [onMessage] method. After calling this you
   /// must listen to the [Stream] returned from [onMessage].
   void subscribePrivate(String channelName, String event) {
-    _channel
-        .invokeMethod('subscribePrivate', {"channel": channelName, "event": event});
+    _channel.invokeMethod(
+        'subscribePrivate', {"channel": channelName, "event": event});
   }
 
   /// Subscribe to the private channel [channelName] for each [eventName] in [events]
