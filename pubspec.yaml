@@ -1,8 +1,8 @@
 name: flutter_pusher
 description: A flutter plugin for the Pusher library.
 version: 0.0.1
-author:
-homepage:
+author: Indoor Solutions <genert.org@indoor.solutions>
+homepage: https://github.com/ninjasolutions/flutter_pusher
 
 environment:
   sdk: ">=2.2.2 <3.0.0"
