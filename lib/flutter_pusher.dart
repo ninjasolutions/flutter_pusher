@@ -11,28 +11,42 @@ enum PusherConnectionState {
   reconnectingWhenNetworkBecomesReachable
 }
 
-class PusherFlutter {
+class FlutterPusherConfig {
+  FlutterPusherConfig(this.apiKey, {this.cluster, this.authUrl});
+
+  final String apiKey;
+  final String cluster;
+  final String authUrl;
+
+  Map<String, dynamic> toMap() {
+    Map<String, dynamic> args = {
+      'apiKey': apiKey,
+    };
+
+    if (cluster != null) {
+      args['cluster'] = cluster;
+    }
+
+    if (authUrl != null) {
+      args['authUrl'] = authUrl;
+    }
+
+    return args;
+  }
+}
+
+class FlutterPusher {
   MethodChannel _channel;
   EventChannel _connectivityEventChannel;
   EventChannel _messageChannel;
   EventChannel _errorChannel;
 
-  /// Creates a [PusherFlutter] with the specified [apiKey] from pusher.
+  /// Creates a [FlutterPusher] with the specified [apiKey] from pusher.
   ///
   /// The [apiKey] may not be null.
-  PusherFlutter(String apiKey, {String cluster, String authUrl}) {
+  FlutterPusher(FlutterPusherConfig config) {
     _channel = MethodChannel('plugins.indoor.solutions/pusher');
-    var args = {"apiKey": apiKey};
-
-    if (cluster != null) {
-      args["cluster"] = cluster;
-    }
-
-    if (authUrl != null) {
-      args["authUrl"] = authUrl;
-    }
-
-    _channel.invokeMethod('create', args);
+    _channel.invokeMethod('create', config.toMap());
     _connectivityEventChannel =
         EventChannel('plugins.indoor.solutions/pusher_connection');
     _messageChannel = EventChannel('plugins.indoor.solutions/pusher_message');

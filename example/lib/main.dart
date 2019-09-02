@@ -14,11 +14,15 @@ class _MyAppState extends State<MyApp> {
   Map _latestMessage;
   PusherError _lastError;
   PusherConnectionState _connectionState;
-  PusherFlutter pusher = new PusherFlutter("<api-key>", cluster: "<cluster>");
+  FlutterPusher pusher = new FlutterPusher(FlutterPusherConfig(
+      "PUSHER_APP_KEY",
+      cluster: "PUSHER_APP_CLUSTER",
+      authUrl: "AUTH_URL")); // Use auth url is required when you need to connect to private channels.
 
   @override
   initState() {
     super.initState();
+
     pusher.onConnectivityChanged.listen((state) {
       setState(() {
         _connectionState = state;
@@ -114,6 +118,10 @@ class _MyAppState extends State<MyApp> {
     pusher.connect();
 
     pusher.subscribe("my-channel", "my-event");
+
+    //pusher.subscribePrivate("my-channel", "my-event");
+
+    //pusher.subscribePrivateAll("my-channel", ["test_event1", "test_event2"]);
 
     //pusher.subscribeAll("test_channel", ["test_event3", "test_event4"]);
 
