@@ -62,6 +62,25 @@ class PusherFlutter {
         .invokeMethod('subscribe', {"channel": channelName, "event": e}));
   }
 
+  /// Subscribe to a private channel with the name [channelName] for the event [event]
+  ///
+  /// Calling this method will cause any messages matching the [event] and [channelName]
+  /// provided to be delivered to the [onMessage] method. After calling this you
+  /// must listen to the [Stream] returned from [onMessage].
+  void subscribePrivate(String channelName, String event) {
+    _channel
+        .invokeMethod('subscribe', {"channel": channelName, "event": event});
+  }
+
+  /// Subscribe to the private channel [channelName] for each [eventName] in [events]
+  ///
+  /// This method is just for convenience if you need to register multiple events
+  /// for the same channel.
+  void subscribePrivateAll(String channelName, List<String> events) {
+    events.forEach((e) => _channel.invokeMethod(
+        'subscribePrivate', {"channel": channelName, "event": e}));
+  }
+
   /// Unsubscribe from a channel with the name [channelName]
   ///
   /// This will un-subscribe you from all events on that channel.
