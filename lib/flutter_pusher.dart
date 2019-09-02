@@ -22,7 +22,7 @@ class PusherFlutter {
   /// The [apiKey] may not be null.
   PusherFlutter(String apiKey, {String cluster}) {
     _channel = MethodChannel('plugins.indoor.solutions/pusher');
-    var args = {"api_key": apiKey};
+    var args = {"apiKey": apiKey};
     if (cluster != null) {
       args["cluster"] = cluster;
     }
@@ -69,7 +69,7 @@ class PusherFlutter {
   /// must listen to the [Stream] returned from [onMessage].
   void subscribePrivate(String channelName, String event) {
     _channel
-        .invokeMethod('subscribe', {"channel": channelName, "event": event});
+        .invokeMethod('subscribePrivate', {"channel": channelName, "event": event});
   }
 
   /// Subscribe to the private channel [channelName] for each [eventName] in [events]
