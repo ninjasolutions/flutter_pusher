@@ -84,7 +84,11 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
         NSString *cluster = call.arguments[@"cluster"];
         NSString *authUrl = call.arguments[@"authUrl"];
         
-        self.pusher = [PTPusher pusherWithKey:apiKey delegate:self encrypted:YES cluster:cluster];
+        if ([cluster length] == 0) {
+            self.pusher = [PTPusher pusherWithKey:apiKey delegate:self encrypted:YES];
+        } else {
+            self.pusher = [PTPusher pusherWithKey:apiKey delegate:self encrypted:YES cluster:cluster];
+        }
         
         if ([authUrl length] > 0) {
             self.pusher.authorizationURL = [NSURL URLWithString:authUrl];
@@ -106,7 +110,7 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
             channel = [self.pusher subscribeToChannelNamed:channelName];
         }
         
-        [self listenToChannel:channel forEvent:event];
+        [channel bindToEventNamed:event target:self action:@selector(forwardEvent:)];
         result(@(YES));
     } else if ([call.method isEqualToString:@"subscribePrivate"]) {
         NSString *channelName = call.arguments[@"channel"];
@@ -117,7 +121,7 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
             channel = [self.pusher subscribeToPrivateChannelNamed:channelName];
         }
         
-        [self listenToPrivateChannel:channel forEvent:event];
+        [channel bindToEventNamed:event target:self action:@selector(forwardEvent:)];
         result(@(YES));
     } else if ([call.method isEqualToString:@"unsubscribe"]) {
         PTPusherChannel *channel = [self.pusher channelNamed:call.arguments];
@@ -130,16 +134,8 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
     result(FlutterMethodNotImplemented);
 }
 
-- (void)listenToChannel:(PTPusherChannel *)channel forEvent:(NSString *)event {
-    [channel bindToEventNamed:event handleWithBlock:^(PTPusherEvent *e) {
-        [self->_messageStreamHandler send:channel.name event:event body:e.data];
-    }];
-}
-
-- (void)listenToPrivateChannel:(PTPusherChannel *)channel forEvent:(NSString *)event {
-    [channel bindToEventNamed:event handleWithBlock:^(PTPusherEvent *e) {
-        [self->_messageStreamHandler send:channel.name event:event body:e.data];
-    }];
+- (void)forwardEvent:(PTPusherEvent *)event {
+    [_messageStreamHandler send:event];
 }
 
 @end
@@ -153,9 +149,9 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
     return nil;
 }
 
-- (void)send:(NSString *)channel event:(NSString *)event body:(id)body {
+- (void)send:(PTPusherEvent *)event {
     if (_eventSink) {
-        NSDictionary *dictionary = @{@"channel": channel, @"event": event, @"body": body};
+        NSDictionary *dictionary = @{@"channel": event.channel, @"event": event.name, @"body": event.data};
         _eventSink(dictionary);
     }
 }

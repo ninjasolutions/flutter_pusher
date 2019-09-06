@@ -8,7 +8,7 @@ pusherLibraryVersion = '1.6.3'
 
 Pod::Spec.new do |s|
   s.name             = 'flutter_pusher'
-  s.version          = '1.0.0'
+  s.version          = libraryVersion
   s.summary          = 'A new flutter plugin project.'
   s.description      = <<-DESC
 A new flutter plugin project.

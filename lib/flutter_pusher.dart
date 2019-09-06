@@ -36,50 +36,44 @@ class FlutterPusherConfig {
 }
 
 class FlutterPusher {
-  MethodChannel _channel;
-  EventChannel _connectivityEventChannel;
-  EventChannel _messageChannel;
-  EventChannel _errorChannel;
+  final MethodChannel _channel;
+  final EventChannel _connectivityEventChannel;
+  final EventChannel _messageChannel;
+  final EventChannel _errorChannel;
 
   /// Creates a [FlutterPusher] with the specified [apiKey] from pusher.
   ///
   /// The [apiKey] may not be null.
-  FlutterPusher(FlutterPusherConfig config) {
-    _channel = MethodChannel('plugins.indoor.solutions/pusher');
+  FlutterPusher(FlutterPusherConfig config)
+      : _channel = new MethodChannel('plugins.indoor.solutions/pusher'),
+        _messageChannel =
+            new EventChannel('plugins.indoor.solutions/pusher_message'),
+        _errorChannel = EventChannel('plugins.indoor.solutions/pusher_error'),
+        _connectivityEventChannel =
+            EventChannel('plugins.indoor.solutions/pusher_connection') {
     _channel.invokeMethod('create', config.toMap());
-    _connectivityEventChannel =
-        EventChannel('plugins.indoor.solutions/pusher_connection');
-    _messageChannel = EventChannel('plugins.indoor.solutions/pusher_message');
-    _errorChannel = EventChannel('plugins.indoor.solutions/pusher_error');
   }
 
   /// Connect to the pusher service.
-  void connect() {
-    _channel.invokeMethod('connect');
-  }
+  Future<void> connect() => _channel.invokeMethod('connect');
 
   /// Disconnect from the pusher service
-  void disconnect() {
-    _channel.invokeMethod('disconnect');
-  }
+  Future<void> disconnect() => _channel.invokeMethod('disconnect');
 
   /// Subscribe to a channel with the name [channelName] for the event [event]
   ///
   /// Calling this method will cause any messages matching the [event] and [channelName]
   /// provided to be delivered to the [onMessage] method. After calling this you
   /// must listen to the [Stream] returned from [onMessage].
-  void subscribe(String channelName, String event) {
-    _channel
-        .invokeMethod('subscribe', {"channel": channelName, "event": event});
-  }
+  Future<void> subscribe(String channelName, String event) => _channel
+      .invokeMethod('subscribe', {"channel": channelName, "event": event});
 
   /// Subscribe to the channel [channelName] for each [eventName] in [events]
   ///
   /// This method is just for convenience if you need to register multiple events
   /// for the same channel.
-  void subscribeAll(String channelName, List<String> events) {
-    events.forEach((e) => _channel
-        .invokeMethod('subscribe', {"channel": channelName, "event": e}));
+  Future<void> subscribeAll(String channelName, List<String> events) async {
+    await Future.wait(events.map((e) => subscribe(channelName, e)));
   }
 
   /// Subscribe to a private channel with the name [channelName] for the event [event]
@@ -87,26 +81,24 @@ class FlutterPusher {
   /// Calling this method will cause any messages matching the [event] and [channelName]
   /// provided to be delivered to the [onMessage] method. After calling this you
   /// must listen to the [Stream] returned from [onMessage].
-  void subscribePrivate(String channelName, String event) {
-    _channel.invokeMethod(
-        'subscribePrivate', {"channel": channelName, "event": event});
-  }
+  Future<void> subscribePrivate(String channelName, String event) =>
+      _channel.invokeMethod(
+          'subscribePrivate', {"channel": channelName, "event": event});
 
   /// Subscribe to the private channel [channelName] for each [eventName] in [events]
   ///
   /// This method is just for convenience if you need to register multiple events
   /// for the same channel.
-  void subscribePrivateAll(String channelName, List<String> events) {
-    events.forEach((e) => _channel.invokeMethod(
-        'subscribePrivate', {"channel": channelName, "event": e}));
+  Future<void> subscribePrivateAll(
+      String channelName, List<String> events) async {
+    await Future.wait(events.map((e) => subscribePrivate(channelName, e)));
   }
 
   /// Unsubscribe from a channel with the name [channelName]
   ///
   /// This will un-subscribe you from all events on that channel.
-  void unsubscribe(String channelName) {
-    _channel.invokeMethod('unsubscribe', channelName);
-  }
+  Future<void> unsubscribe(String channelName) =>
+      _channel.invokeMethod('unsubscribe', channelName);
 
   /// Get the [Stream] of [PusherMessage] for the channels and events you've
   /// signed up for.
@@ -169,4 +161,6 @@ class PusherError {
   final String message;
 
   PusherError(this.code, this.message);
+
+  toString() => "$code,$message";
 }

@@ -7,7 +7,7 @@ A plugin to access Pusher features such as connection to both public and private
 *Note*: This plugin is still under development, and some APIs might not be available yet. [Feedback](https://github.com/ninjasolutions/flutter_pusher/issues) and [Pull Requests](https://github.com/ninjasolutions/flutter_pusher/pulls) are most welcome!
 
 ## Usage
-To use this plugin, add `firebase_messaging` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
+To use this plugin, add `flutter_pusher` as a [dependency in your pubspec.yaml file](https://flutter.io/platform-plugins/).
 
 ## Getting Started
 

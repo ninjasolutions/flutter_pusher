@@ -22,209 +22,217 @@ import org.json.JSONArray
 
 class FlutterPusherPlugin() : MethodCallHandler, ConnectionEventListener {
 
-  var pusher: Pusher? = null
-  val messageStreamHandler = MessageStreamHandler()
-  val connectionStreamHandler = ConnectionStreamHandler()
-  val errorStreamHandler = ErrorStreamHandler()
+    var pusher: Pusher? = null
+    val messageStreamHandler = MessageStreamHandler()
+    val connectionStreamHandler = ConnectionStreamHandler()
+    val errorStreamHandler = ErrorStreamHandler()
 
-  companion object {
-    @JvmStatic
-    fun registerWith(registrar: Registrar): Unit {
-      val instance = FlutterPusherPlugin()
-      val channel = MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher")
-      channel.setMethodCallHandler(instance)
-      val connectionEventChannel = EventChannel(registrar.messenger(),
-              "plugins.indoor.solutions/pusher_connection")
-      connectionEventChannel.setStreamHandler(instance.connectionStreamHandler)
-      val messageEventChannel = EventChannel(registrar.messenger(),
-              "plugins.indoor.solutions/pusher_message")
-      messageEventChannel.setStreamHandler(instance.messageStreamHandler)
+    companion object {
+        @JvmStatic
+        fun registerWith(registrar: Registrar): Unit {
+            val instance = FlutterPusherPlugin()
+            val channel = MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher")
+            channel.setMethodCallHandler(instance)
+            val connectionEventChannel = EventChannel(registrar.messenger(),
+                    "plugins.indoor.solutions/pusher_connection")
+            connectionEventChannel.setStreamHandler(instance.connectionStreamHandler)
+            val messageEventChannel = EventChannel(registrar.messenger(),
+                    "plugins.indoor.solutions/pusher_message")
+            messageEventChannel.setStreamHandler(instance.messageStreamHandler)
 
-      val errorEventChannel = EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusher_error")
-      errorEventChannel.setStreamHandler(instance.errorStreamHandler)
+            val errorEventChannel = EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusher_error")
+            errorEventChannel.setStreamHandler(instance.errorStreamHandler)
+        }
     }
-  }
 
-  override fun onConnectionStateChange(state: ConnectionStateChange) {
-    connectionStreamHandler.sendState(state.currentState)
-  }
-
-  override fun onError(message: String?, code: String?, p2: Exception?) {
-    p2?.printStackTrace()
-    val errMessage = message ?: p2?.localizedMessage ?: "Unknown error"
-    errorStreamHandler.send(code ?: "", errMessage)
-  }
-
-  override fun onMethodCall(call: MethodCall, result: Result): Unit {
-    when (call.method) {
-      "create" -> {
-        val apiKey = call.argument<String>("api_key")
-        val cluster = call.argument<String?>("cluster")
-        val authUrl = call.argument<String?>("auth_url")
-        val pusherOptions = PusherOptions()
-        if (cluster != null) {
-          pusherOptions.setCluster(cluster)
-        }
-        if (authUrl != null) {
-          val authorizer = HttpAuthorizer(authUrl)
-          pusherOptions.setAuthorizer(authorizer)
-        }
-        pusher = Pusher(apiKey, pusherOptions)
-      }
-      "connect" -> pusher?.connect(this, ConnectionState.ALL)
-      "disconnect" -> pusher?.disconnect()
-      "subscribe" -> {
-        val pusher = this.pusher ?: return
-        val event = call.argument<String>("event")
-                ?: throw RuntimeException("Must provide event name")
-        val channelName = call.argument<String>("channel")
-                ?: throw RuntimeException("Must provide channel")
-        var channel = pusher.getChannel(channelName)
-        if (channel == null) {
-          channel = pusher.subscribe(channelName)
-        }
-        listenToChannel(channel, event)
-        result.success(null)
-      }
-      "subscribePrivate" -> {
-        val pusher = this.pusher ?: return
-        val event = call.argument<String>("event")
-                ?: throw RuntimeException("Must provide event name")
-        val channelName = call.argument<String>("channel")
-                ?: throw RuntimeException("Must provide channel")
-        var channel = pusher.getPrivateChannel(channelName)
-        if (channel == null) {
-          channel = pusher.subscribePrivate(channelName)
-        }
-        listenToPrivateChannel(channel, event)
-        result.success(null)
-      }
-      "unsubscribe" -> {
-        val pusher = this.pusher ?: return
-        val channelName = call.argument<String>("channel")
-        pusher.unsubscribe(channelName)
-        result.success(null)
-      }
-      else -> result.notImplemented()
+    override fun onConnectionStateChange(state: ConnectionStateChange) {
+        connectionStreamHandler.sendState(state.currentState)
     }
-  }
 
-  private fun listenToChannel(channel: Channel, event: String) {
+    override fun onError(message: String?, code: String?, p2: Exception?) {
+        p2?.printStackTrace()
+        val errMessage = message ?: p2?.localizedMessage ?: "Unknown error"
+        errorStreamHandler.send(code ?: "", errMessage)
+    }
+
+    override fun onMethodCall(call: MethodCall, result: Result): Unit {
+        when (call.method) {
+            "create" -> {
+                val apiKey = call.argument<String>("api_key")
+                val cluster = call.argument<String?>("cluster")
+                val authUrl = call.argument<String?>("auth_url")
+                val pusherOptions = PusherOptions()
+                if (cluster != null) {
+                    pusherOptions.setCluster(cluster)
+                }
+                if (authUrl != null) {
+                    val authorizer = HttpAuthorizer(authUrl)
+                    pusherOptions.setAuthorizer(authorizer)
+                }
+                pusher = Pusher(apiKey, pusherOptions)
+                result.success(null)
+            }
+            "connect" -> {
+                pusher?.connect(this, ConnectionState.ALL)
+                result.success(null)
+            }
+            "disconnect" -> {
+                pusher?.disconnect()
+                result.success(null)
+            }
+        }
+        "subscribe" -> {
+            val pusher = this.pusher ?: return
+            val event = call.argument<String>("event")
+                    ?: throw RuntimeException("Must provide event name")
+            val channelName = call.argument<String>("channel")
+                    ?: throw RuntimeException("Must provide channel")
+            var channel = pusher.getChannel(channelName)
+            if (channel == null) {
+                channel = pusher.subscribe(channelName)
+            }
+            listenToChannel(channel, event)
+            result.success(null)
+        }
+        "subscribePrivate" -> {
+            val pusher = this.pusher ?: return
+            val event = call.argument<String>("event")
+                    ?: throw RuntimeException("Must provide event name")
+            val channelName = call.argument<String>("channel")
+                    ?: throw RuntimeException("Must provide channel")
+            var channel = pusher.getPrivateChannel(channelName)
+            if (channel == null) {
+                channel = pusher.subscribePrivate(channelName)
+            }
+            listenToPrivateChannel(channel, event)
+            result.success(null)
+        }
+        "unsubscribe" -> {
+            val pusher = this.pusher ?: return
+            val channelName = call.argument<String>("channel")
+            pusher.unsubscribe(channelName)
+            result.success(null)
+        }
+        else -> result.notImplemented()
+    }
+}
+
+private fun listenToChannel(channel: Channel, event: String) {
     val asyncDataListener = SubscriptionEventListener { _, eventName, data ->
-      messageStreamHandler.send(channel.name, eventName, data)
-    }
-    channel.bind(event, asyncDataListener)
-  }
-
-  private fun listenToPrivateChannel(channel: Channel, event: String) {
-    val asyncDataListener = object : PrivateChannelEventListener {
-      override fun onEvent(channelName: String, eventName: String, data: String) {
         messageStreamHandler.send(channel.name, eventName, data)
-      }
-
-      override fun onSubscriptionSucceeded(channelName: String) {
-        // TODO
-      }
-
-      override fun onAuthenticationFailure(message: String, e: Exception) {
-        // TODO
-      }
     }
     channel.bind(event, asyncDataListener)
-  }
+}
+
+private fun listenToPrivateChannel(channel: Channel, event: String) {
+    val asyncDataListener = object : PrivateChannelEventListener {
+        override fun onEvent(channelName: String, eventName: String, data: String) {
+            messageStreamHandler.send(channel.name, eventName, data)
+        }
+
+        override fun onSubscriptionSucceeded(channelName: String) {
+            // TODO
+        }
+
+        override fun onAuthenticationFailure(message: String, e: Exception) {
+            // TODO
+        }
+    }
+    channel.bind(event, asyncDataListener)
+}
 }
 
 class MessageStreamHandler : EventChannel.StreamHandler {
-  private var eventSink: EventChannel.EventSink? = null
-  override fun onListen(arguments: Any?, sink: EventChannel.EventSink) {
-    eventSink = sink
-  }
+    private var eventSink: EventChannel.EventSink? = null
+    override fun onListen(arguments: Any?, sink: EventChannel.EventSink) {
+        eventSink = sink
+    }
 
-  fun send(channel: String, event: String, data: Any) {
-    val json = JSONObject(data as String)
-    val map = jsonToMap(json)
-    eventSink?.success(mapOf("channel" to channel,
-            "event" to event,
-            "body" to map))
-  }
+    fun send(channel: String, event: String, data: Any) {
+        val json = JSONObject(data as String)
+        val map = jsonToMap(json)
+        eventSink?.success(mapOf("channel" to channel,
+                "event" to event,
+                "body" to map))
+    }
 
-  override fun onCancel(p0: Any?) {
-    eventSink = null
-  }
+    override fun onCancel(p0: Any?) {
+        eventSink = null
+    }
 }
 
 class ErrorStreamHandler : EventChannel.StreamHandler {
-  private var eventSink: EventChannel.EventSink? = null
-  override fun onListen(arguments: Any?, sink: EventChannel.EventSink) {
-    eventSink = sink
-  }
-
-  fun send(code: String, message: String) {
-    val errCode = try {
-      code.toInt()
-    } catch (e: NumberFormatException) {
-      0
+    private var eventSink: EventChannel.EventSink? = null
+    override fun onListen(arguments: Any?, sink: EventChannel.EventSink) {
+        eventSink = sink
     }
-    eventSink?.success(mapOf("code" to errCode, "message" to message))
-  }
 
-  override fun onCancel(p0: Any?) {
-    eventSink = null
-  }
+    fun send(code: String, message: String) {
+        val errCode = try {
+            code.toInt()
+        } catch (e: NumberFormatException) {
+            0
+        }
+        eventSink?.success(mapOf("code" to errCode, "message" to message))
+    }
+
+    override fun onCancel(p0: Any?) {
+        eventSink = null
+    }
 }
 
 class ConnectionStreamHandler : EventChannel.StreamHandler {
-  private var eventSink: EventChannel.EventSink? = null
-  override fun onListen(argunents: Any?, sink: EventChannel.EventSink) {
-    eventSink = sink
-  }
+    private var eventSink: EventChannel.EventSink? = null
+    override fun onListen(argunents: Any?, sink: EventChannel.EventSink) {
+        eventSink = sink
+    }
 
-  fun sendState(state: ConnectionState) {
-    eventSink?.success(state.toString().toLowerCase())
-  }
+    fun sendState(state: ConnectionState) {
+        eventSink?.success(state.toString().toLowerCase())
+    }
 
-  override fun onCancel(p0: Any?) {
-    eventSink = null
-  }
+    override fun onCancel(p0: Any?) {
+        eventSink = null
+    }
 }
 
 fun jsonToMap(json: JSONObject?): Map<String, Any> {
-  var retMap: Map<String, Any> = HashMap()
+    var retMap: Map<String, Any> = HashMap()
 
-  if (json != null) {
-    retMap = toMap(json)
-  }
-  return retMap
+    if (json != null) {
+        retMap = toMap(json)
+    }
+    return retMap
 }
 
 fun toMap(`object`: JSONObject): Map<String, Any> {
-  val map = HashMap<String, Any>()
+    val map = HashMap<String, Any>()
 
-  val keysItr = `object`.keys().iterator()
-  while (keysItr.hasNext()) {
-    val key = keysItr.next()
-    var value = `object`.get(key)
+    val keysItr = `object`.keys().iterator()
+    while (keysItr.hasNext()) {
+        val key = keysItr.next()
+        var value = `object`.get(key)
 
-    if (value is JSONArray) {
-      value = toList(value)
-    } else if (value is JSONObject) {
-      value = toMap(value)
+        if (value is JSONArray) {
+            value = toList(value)
+        } else if (value is JSONObject) {
+            value = toMap(value)
+        }
+        map.put(key, value)
     }
-    map.put(key, value)
-  }
-  return map
+    return map
 }
 
 fun toList(array: JSONArray): List<Any> {
-  val list = ArrayList<Any>()
-  for (i in 0..array.length() - 1) {
-    var value = array.get(i)
-    if (value is JSONArray) {
-      value = toList(value)
-    } else if (value is JSONObject) {
-      value = toMap(value)
+    val list = ArrayList<Any>()
+    for (i in 0..array.length() - 1) {
+        var value = array.get(i)
+        if (value is JSONArray) {
+            value = toList(value)
+        } else if (value is JSONObject) {
+            value = toMap(value)
+        }
+        list.add(value)
     }
-    list.add(value)
-  }
-  return list
+    return list
 }
