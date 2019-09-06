@@ -114,24 +114,24 @@ class _MyAppState extends State<MyApp> {
     return new Text("Invalid state");
   }
 
-  void connect() {
-    pusher.connect();
+  void connect() async {
+    await pusher.connect();
 
-    pusher.subscribe("my-channel", "my-event");
+    await pusher.subscribe("my-channel", "my-event");
 
-    //pusher.subscribePrivate("my-channel", "my-event");
+    //await pusher.subscribePrivate("my-channel", "my-event");
 
-    //pusher.subscribePrivateAll("my-channel", ["test_event1", "test_event2"]);
+    //await pusher.subscribePrivateAll("my-channel", ["test_event1", "test_event2"]);
 
-    //pusher.subscribeAll("test_channel", ["test_event3", "test_event4"]);
+    //await pusher.subscribeAll("test_channel", ["test_event3", "test_event4"]);
 
     pusher.onMessage.listen((pusher) {
       setState(() => _latestMessage = pusher.jsonBody);
     });
   }
 
-  void disconnect() {
-    pusher.unsubscribe("my-channel");
-    pusher.disconnect();
+  void disconnect() async {
+    await pusher.unsubscribe("my-channel");
+    await pusher.disconnect();
   }
 }

@@ -1,6 +1,6 @@
 PODS:
   - Flutter (1.0.0)
-  - flutter_pusher (1.0.0):
+  - flutter_pusher (0.0.1):
     - Flutter
     - libPusher (= 1.6.3)
   - libPusher (1.6.3):
@@ -26,7 +26,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
-  flutter_pusher: bf53c22223841143bad4ece3ed0d21a659ec256f
+  flutter_pusher: ba33a65add108837782ab301dcca07512be3bc28
   libPusher: b7fcf16e2db51c37915613652311d66065743ead
   SocketRocket: d57c7159b83c3c6655745cd15302aa24b6bae531
 
