@@ -1,3 +1,9 @@
+## 0.0.2
+
+* [FA-69]: Fix Android build.
+* Add async/await support.
+* Check for configuration params in iOs.
+
 ## 0.0.1
 
 * Initial Release.
