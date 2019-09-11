@@ -120,7 +120,7 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
         if (!channel) {
             channel = [self.pusher subscribeToPrivateChannelNamed:channelName];
         }
-        
+    
         [channel bindToEventNamed:event target:self action:@selector(forwardEvent:)];
         result(@(YES));
     } else if ([call.method isEqualToString:@"unsubscribe"]) {
@@ -130,7 +130,25 @@ NSString *const PUSHER_ERROR_CHANNEL_NAME = @"plugins.indoor.solutions/pusher_er
             [channel unsubscribe];
         }
         result(@(YES));
+    } else if ([call.method isEqualToString:@"triggerPrivate"]) {
+        NSString *channelName = call.arguments[@"channel"];
+        NSString *event = call.arguments[@"event"];
+        NSString *data = call.arguments[@"data"];
+        PTPusherChannel *channel = [self.pusher channelNamed:channelName];
+        
+        if (!channel) {
+            channel = [self.pusher subscribeToPrivateChannelNamed:channelName];
+        }
+        
+        if ([data length] == 0) {
+            [(PTPusherPrivateChannel *)channel triggerEventNamed:event data:nil];
+        } else {
+            [(PTPusherPrivateChannel *)channel triggerEventNamed:event data:data];
+        }
+        
+        result(@(YES));
     }
+    
     result(FlutterMethodNotImplemented);
 }
 

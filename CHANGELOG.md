@@ -1,3 +1,7 @@
+## 0.0.3
+
+* Add trigger support.
+
 ## 0.0.2
 
 * [FA-69]: Fix Android build.

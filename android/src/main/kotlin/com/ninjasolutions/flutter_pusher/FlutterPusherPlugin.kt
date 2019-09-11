@@ -113,6 +113,27 @@ class FlutterPusherPlugin() : MethodCallHandler, ConnectionEventListener {
             pusher.unsubscribe(channelName)
             result.success(null)
         }
+        "triggerPrivate" -> {
+            val pusher = this.pusher ?: return
+            val event = call.argument<String>("event")
+                    ?: throw RuntimeException("Must provide event name")
+            val channelName = call.argument<String>("channel")
+                    ?: throw RuntimeException("Must provide channel")
+            var data = call.argument<String>("data") ?: null;
+            var channel = pusher.getPrivateChannel(channelName)
+            if (channel == null) {
+                channel = pusher.subscribePrivate(channelName)
+            }
+
+            if (!event.startsWith("client-")) {
+                event = "client-$event";
+            }
+
+            channel.trigger(event, data);
+
+            result.success(null)
+
+        }
         else -> result.notImplemented()
     }
 }

@@ -100,6 +100,14 @@ class FlutterPusher {
   Future<void> unsubscribe(String channelName) =>
       _channel.invokeMethod('unsubscribe', channelName);
 
+  /// Trigger [event] (will be prefixed with "client-" in case you have not) for [channelName].
+  ///
+  /// Client events can only be triggered on private and presence channels because they require authentication
+  /// You can only trigger a client event once a subscription has been successfully registered with Channels.
+  Future<void> trigger(String channelName, String event, {String data}) =>
+      _channel.invokeMethod('triggerPrivate',
+          {"channel": channelName, "event": event, "data": data ?? null});
+
   /// Get the [Stream] of [PusherMessage] for the channels and events you've
   /// signed up for.
   ///

@@ -121,6 +121,8 @@ class _MyAppState extends State<MyApp> {
 
     //await pusher.subscribePrivate("my-channel", "my-event");
 
+    //await pusher.trigger("my-channel", "my-trigger");
+
     //await pusher.subscribePrivateAll("my-channel", ["test_event1", "test_event2"]);
 
     //await pusher.subscribeAll("test_channel", ["test_event3", "test_event4"]);
