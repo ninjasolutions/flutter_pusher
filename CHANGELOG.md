@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Major changes.
+
 ## 0.0.3
 
 * Add trigger support.

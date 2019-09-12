@@ -1,5 +1,5 @@
-name: flutter_pusher_example
-description: Demonstrates how to use the flutter_pusher plugin.
+name: pusher_example
+description: Demonstrates how to use the pusher plugin.
 publish_to: 'none'
 
 environment:
@@ -21,7 +21,7 @@ dev_dependencies:
     path: ../
 
 # For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+# following page: https://www.dartlang.org/tools/pub/pubspec
 
 # The following section is specific to Flutter.
 flutter:

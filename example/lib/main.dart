@@ -1,139 +1,220 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_pusher/flutter_pusher.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_pusher/pusher.dart';
 
-void main() {
-  runApp(new MyApp());
-}
+void main() => runApp(MyApp());
 
 class MyApp extends StatefulWidget {
   @override
-  _MyAppState createState() => new _MyAppState();
+  _MyAppState createState() => _MyAppState();
 }
 
 class _MyAppState extends State<MyApp> {
-  Map _latestMessage;
-  PusherError _lastError;
-  PusherConnectionState _connectionState;
-  FlutterPusher pusher = new FlutterPusher(FlutterPusherConfig(
-      "PUSHER_APP_KEY",
-      cluster: "PUSHER_APP_CLUSTER",
-      authUrl: "AUTH_URL")); // Use auth url is required when you need to connect to private channels.
+  Event lastEvent;
+  String lastConnectionState;
+  Channel channel;
+
+  var channelController = TextEditingController(text: "my-channel");
+  var eventController = TextEditingController(text: "my-event");
+  var triggerController = TextEditingController(text: "client-trigger");
 
   @override
-  initState() {
+  void initState() {
     super.initState();
+    initPusher();
+  }
 
-    pusher.onConnectivityChanged.listen((state) {
-      setState(() {
-        _connectionState = state;
-        if (state == PusherConnectionState.connected) {
-          _lastError = null;
-        }
-      });
-    });
-    //pusher.onError.listen((err) => _lastError = err);
-    _connectionState = PusherConnectionState.disconnected;
+  Future<void> initPusher() async {
+    try {
+      await Pusher.init(
+          "APP_KEY",
+          PusherOptions(
+            cluster: "eu",
+          ),
+          enableLogging: true);
+    } on PlatformException catch (e) {
+      print(e.message);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      home: new Scaffold(
-          appBar: new AppBar(
-            title: new Text('Pusher example app.'),
+    return MaterialApp(
+      home: Scaffold(
+          appBar: AppBar(
+            title: Text('Plugin example app'),
           ),
-          body: new Column(
-            children: <Widget>[
-              new Row(
-                children: <Widget>[
-                  new Text('Latest message ${_latestMessage.toString()}')
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-              ),
-              buildConnectRow(context),
-              buildErrorRow(context),
-            ],
+          body: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _buildInfo(),
+                RaisedButton(
+                  child: Text("Connect"),
+                  onPressed: () {
+                    Pusher.connect(onConnectionStateChange: (x) async {
+                      if (mounted)
+                        setState(() {
+                          lastConnectionState = x.currentState;
+                        });
+                    }, onError: (x) {
+                      debugPrint("Error: ${x.message}");
+                    });
+                  },
+                ),
+                RaisedButton(
+                  child: Text("Disconnect"),
+                  onPressed: () {
+                    Pusher.disconnect();
+                  },
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 200,
+                      child: TextField(
+                        controller: channelController,
+                        decoration: InputDecoration(hintText: "Channel"),
+                      ),
+                    ),
+                    RaisedButton(
+                      child: Text("Subscribe"),
+                      onPressed: () async {
+                        channel =
+                            await Pusher.subscribe(channelController.text);
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 200,
+                      child: TextField(
+                        controller: channelController,
+                        decoration: InputDecoration(hintText: "Channel"),
+                      ),
+                    ),
+                    RaisedButton(
+                      child: Text("Unsubscribe"),
+                      onPressed: () async {
+                        await Pusher.unsubscribe(channelController.text);
+                        channel = null;
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 200,
+                      child: TextField(
+                        controller: eventController,
+                        decoration: InputDecoration(hintText: "Event"),
+                      ),
+                    ),
+                    RaisedButton(
+                      child: Text("Bind"),
+                      onPressed: () async {
+                        await channel.bind(eventController.text, (x) {
+                          if (mounted)
+                            setState(() {
+                              lastEvent = x;
+                            });
+                        });
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 200,
+                      child: TextField(
+                        controller: eventController,
+                        decoration: InputDecoration(hintText: "Event"),
+                      ),
+                    ),
+                    RaisedButton(
+                      child: Text("Unbind"),
+                      onPressed: () async {
+                        await channel.unbind(eventController.text);
+                      },
+                    )
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      width: 200,
+                      child: TextField(
+                        controller: triggerController,
+                        decoration: InputDecoration(hintText: "Trigger"),
+                      ),
+                    ),
+                    RaisedButton(
+                      child: Text("Trigger"),
+                      onPressed: () async {
+                        await channel.trigger(triggerController.text);
+                      },
+                    )
+                  ],
+                ),
+              ],
+            ),
           )),
     );
   }
 
-  Widget buildErrorRow(BuildContext context) {
-    if (_lastError != null) {
-      return new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[new Text("Error: ${_lastError.message}")],
-      );
-    } else {
-      return new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[new Text("No Errors")],
-      );
-    }
-  }
-
-  Widget buildConnectRow(BuildContext context) {
-    switch (_connectionState) {
-      case PusherConnectionState.connected:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+  Widget _buildInfo() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new MaterialButton(
-                onPressed: disconnect, child: new Text("Disconnect"))
+            Text(
+              "Connection State: ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(lastConnectionState ?? "Unknown"),
           ],
-        );
-      case PusherConnectionState.disconnected:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new MaterialButton(onPressed: connect, child: new Text("Connect"))
+            Text(
+              "Last Event Channel: ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(lastEvent?.channel ?? ""),
           ],
-        );
-      case PusherConnectionState.disconnecting:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[new Text("Disconnecting...")],
-        );
-      case PusherConnectionState.connecting:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[new Text("Connecting...")],
-        );
-      case PusherConnectionState.reconnectingWhenNetworkBecomesReachable:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        ),
+        SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Text("Will reconnect when network becomes available")
+            Text(
+              "Last Event Name: ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(lastEvent?.event ?? ""),
           ],
-        );
-      case PusherConnectionState.reconnecting:
-        return new Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[new Text("Reconnecting...")],
-        );
-    }
-    return new Text("Invalid state");
-  }
-
-  void connect() async {
-    await pusher.connect();
-
-    await pusher.subscribe("my-channel", "my-event");
-
-    //await pusher.subscribePrivate("my-channel", "my-event");
-
-    //await pusher.trigger("my-channel", "my-trigger");
-
-    //await pusher.subscribePrivateAll("my-channel", ["test_event1", "test_event2"]);
-
-    //await pusher.subscribeAll("test_channel", ["test_event3", "test_event4"]);
-
-    pusher.onMessage.listen((pusher) {
-      setState(() => _latestMessage = pusher.jsonBody);
-    });
-  }
-
-  void disconnect() async {
-    await pusher.unsubscribe("my-channel");
-    await pusher.disconnect();
+        ),
+        SizedBox(height: 8),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              "Last Event Data: ",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(lastEvent?.data ?? ""),
+          ],
+        ),
+      ],
+    );
   }
 }

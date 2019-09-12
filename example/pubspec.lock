@@ -69,13 +69,6 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
-  flutter_pusher:
-    dependency: "direct dev"
-    description:
-      path: ".."
-      relative: true
-    source: path
-    version: "0.0.1"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -88,6 +81,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.4"
+  json_annotation:
+    dependency: transitive
+    description:
+      name: json_annotation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.0"
   matcher:
     dependency: transitive
     description:
@@ -123,6 +123,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.4.0"
+  flutter_pusher:
+    dependency: "direct dev"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "0.1.1"
   quiver:
     dependency: transitive
     description:
