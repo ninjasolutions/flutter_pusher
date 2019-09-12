@@ -1,3 +1,7 @@
+## 1.0.0
+
+* Added data sending option for iOS channel client trigger.
+
 ## 0.0.4
 
 * Major changes.
