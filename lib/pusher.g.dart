@@ -26,12 +26,14 @@ BindArgs _$BindArgsFromJson(Map<String, dynamic> json) {
   return BindArgs(
     channelName: json['channelName'] as String,
     eventName: json['eventName'] as String,
+    data: json['data'] as String,
   );
 }
 
 Map<String, dynamic> _$BindArgsToJson(BindArgs instance) => <String, dynamic>{
       'channelName': instance.channelName,
       'eventName': instance.eventName,
+      'data': instance.data,
     };
 
 PusherOptions _$PusherOptionsFromJson(Map<String, dynamic> json) {

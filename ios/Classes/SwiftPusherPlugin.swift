@@ -254,16 +254,25 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
     }
     
     public func trigger(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+        if (SwiftPusherPlugin.isLoggingEnabled) {
+            print("Pusher trigger")
+        }
+        
         do {
             let json = call.arguments as! String
             let jsonDecoder = JSONDecoder()
             let bindArgs = try jsonDecoder.decode(BindArgs.self, from: json.data(using: .utf8)!)
+            var data: String = "";
+            
+            if let triggerData = bindArgs.data {
+                data = triggerData
+            }
             
             let channel = SwiftPusherPlugin.channels[bindArgs.channelName]
             if let channelObj = channel {
                 let eventName = bindArgs.eventName
                 
-                channelObj.trigger(eventName: eventName, data: [])
+                channelObj.trigger(eventName: eventName, data: data)
             }
         } catch {
             if (SwiftPusherPlugin.isLoggingEnabled) {
@@ -287,10 +296,10 @@ class AuthRequestBuilder: AuthRequestBuilderProtocol {
             var request = URLRequest(url: URL(string: endpoint)!)
             request.httpMethod = "POST"
             
-            if(headers.values.contains("application/json")){
+            if (headers.values.contains("application/json")){
                 let jsonEncoder = JSONEncoder()
                 request.httpBody = try jsonEncoder.encode(["socket_id": socketID, "channel_name": channelName])
-            }else{
+            } else{
                 request.httpBody = "socket_id=\(socketID)&channel_name=\(channelName)".data(using: String.Encoding.utf8)
             }
             
@@ -358,4 +367,5 @@ struct Event: Codable {
 struct BindArgs: Codable {
     var channelName: String
     var eventName: String
+    var data: String?
 }

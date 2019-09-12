@@ -75,10 +75,12 @@ class Pusher {
     await _channel.invokeMethod('unsubscribe', channelName);
   }
 
-  static Future _trigger(String channelName, String eventName) async {
+  static Future _trigger(
+      String channelName, String eventName, String data) async {
     final bindArgs = jsonEncode(BindArgs(
       channelName: channelName,
       eventName: eventName,
+      data: data,
     ).toJson());
 
     await _channel.invokeMethod('trigger', bindArgs);
@@ -147,8 +149,9 @@ class InitArgs {
 class BindArgs {
   final String channelName;
   final String eventName;
+  final String data;
 
-  BindArgs({this.channelName, this.eventName});
+  BindArgs({this.channelName, this.eventName, this.data});
 
   factory BindArgs.fromJson(Map<String, dynamic> json) =>
       _$BindArgsFromJson(json);
@@ -254,12 +257,12 @@ class Channel {
   ///
   /// Client events can only be triggered on private and presence channels because they require authentication
   /// You can only trigger a client event once a subscription has been successfully registered with Channels.
-  Future trigger(String eventName) async {
+  Future trigger(String eventName, {String data}) async {
     if (!eventName.startsWith('client-')) {
       eventName = "client-$eventName";
     }
 
-    await Pusher._trigger(name, eventName);
+    await Pusher._trigger(name, eventName, data ?? "{}");
   }
 }
 

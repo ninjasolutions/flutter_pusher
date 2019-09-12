@@ -74,6 +74,7 @@ class _MyAppState extends State<MyApp> {
                     Container(
                       width: 200,
                       child: TextField(
+                        autocorrect: false,
                         controller: channelController,
                         decoration: InputDecoration(hintText: "Channel"),
                       ),
@@ -156,7 +157,8 @@ class _MyAppState extends State<MyApp> {
                     RaisedButton(
                       child: Text("Trigger"),
                       onPressed: () async {
-                        await channel.trigger(triggerController.text);
+                        await channel.trigger(triggerController.text,
+                            data: '{"testValue": 123, "anotherOne": false, "nested": {"w0t": "m8"}}');
                       },
                     )
                   ],
