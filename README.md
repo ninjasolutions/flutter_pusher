@@ -10,7 +10,7 @@ An unofficial Flutter plugin that wraps [pusher-websocket-java](https://github.c
 * Add to your pubspec.yaml
 ```
 dependencies:
-  flutter_pusher: ^0.0.4
+  flutter_pusher: ^1.0.0
 ```
 * In `/ios/Podfile`, set global platform to at least 9.0
 `platform :ios, '9.0'`
