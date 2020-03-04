@@ -1,5 +1,4 @@
 ---
-
 name: 💬 Questions and Help
 about: If you have questions, please use this for support
 ---
@@ -9,3 +8,4 @@ about: If you have questions, please use this for support
 For questions or help we recommend checking:
 
 - The [Flutter tag in Stack Overflow](https://stackoverflow.com/questions/tagged/flutter)
+- The [Pusher tag in Stack Overflow](https://stackoverflow.com/questions/tagged/pusher)

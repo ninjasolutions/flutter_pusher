@@ -158,7 +158,8 @@ class _MyAppState extends State<MyApp> {
                       child: Text("Trigger"),
                       onPressed: () async {
                         await channel.trigger(triggerController.text,
-                            data: '{"testValue": 123, "anotherOne": false, "nested": {"w0t": "m8"}}');
+                            data:
+                                '{"testValue": 123, "anotherOne": false, "nested": {"w0t": "m8"}}');
                       },
                     )
                   ],
