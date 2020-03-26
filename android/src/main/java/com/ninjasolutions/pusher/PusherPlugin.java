@@ -13,6 +13,7 @@ import com.pusher.client.PusherOptions;
 import com.pusher.client.channel.Channel;
 import com.pusher.client.channel.ChannelEventListener;
 import com.pusher.client.channel.PresenceChannelEventListener;
+import com.pusher.client.channel.PrivateChannel;
 import com.pusher.client.channel.PrivateChannelEventListener;
 import com.pusher.client.channel.PusherEvent;
 import com.pusher.client.channel.User;
@@ -377,9 +378,18 @@ public class PusherPlugin implements MethodCallHandler {
             final String channelName = json.getString("channelName");
             final String eventName = json.getString("eventName");
 
-            Channel channel = channels.get(channelName);
+            String data = "{}";
+            if (json.has("data")) {
+                data = json.getString("data");
+            }
 
-            channel.trigger(eventName, "{}");
+            Channel channel = channels.get(channelName);
+            if (channel instanceof PrivateChannel) {
+                if (isLoggingEnabled) {
+                    Log.d(TAG, String.format("Trigger event: %s with data: %s", eventName, data));
+                }
+                ((PrivateChannel) channel).trigger(eventName, data);
+            }
         } catch (Exception e) {
             if (isLoggingEnabled) {
                 Log.d(TAG, String.format("unbind exception: %s", e.getMessage()));
