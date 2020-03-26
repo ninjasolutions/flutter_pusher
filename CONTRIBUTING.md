@@ -13,7 +13,7 @@
 - If you haven't configured your machine with an SSH key that's known to github, then
   follow [GitHub's directions](https://help.github.com/articles/generating-ssh-keys/)
   to generate an SSH key.
-- Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:genert/flutter_i18n.git`
+- Add an upstream to the original repo, so that fetch from the master repository and not your clone: `git remote add upstream git@github.com:ninjasolutions/flutter_pusher.git`
 
 ## Contribute
 
