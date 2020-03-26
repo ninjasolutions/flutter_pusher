@@ -1,3 +1,7 @@
+## 1.0.2
+
+- Fixes Android build error with missing trigger method. By @athornz
+
 ## 1.0.1
 
 - Update PusherSwift library from 7.0.0 to 7.2.0
