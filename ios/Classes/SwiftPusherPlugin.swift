@@ -238,7 +238,7 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
     
     public func changedConnectionState(from old: ConnectionState, to new: ConnectionState) {
         do {
-            let stateChange = ConnectionStateChange(currentState: new.stringValue(), previousState: old.stringValue())
+            let stateChange = ConnectionStateChange(currentState: new.stringValue(), previousState: old.stringValue() , socketId: SwiftPusherPlugin.pusher?.connection.socketId ?? "")
             let message = PusherEventStreamMessage(event: nil, connectionStateChange: stateChange)
             let jsonEncoder = JSONEncoder()
             let jsonData = try jsonEncoder.encode(message)
@@ -252,26 +252,26 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
             }
         }
     }
-    
+
     public func trigger(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
         if (SwiftPusherPlugin.isLoggingEnabled) {
             print("Pusher trigger")
         }
-        
+
         do {
             let json = call.arguments as! String
             let jsonDecoder = JSONDecoder()
             let bindArgs = try jsonDecoder.decode(BindArgs.self, from: json.data(using: .utf8)!)
             var data: String = "";
-            
+
             if let triggerData = bindArgs.data {
                 data = triggerData
             }
-            
+
             let channel = SwiftPusherPlugin.channels[bindArgs.channelName]
             if let channelObj = channel {
                 let eventName = bindArgs.eventName
-                
+
                 channelObj.trigger(eventName: eventName, data: data)
             }
         } catch {
@@ -285,24 +285,24 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
 class AuthRequestBuilder: AuthRequestBuilderProtocol {
     var endpoint: String
     var headers: [String: String]
-    
+
     init(endpoint: String, headers: [String: String]) {
         self.endpoint = endpoint
         self.headers = headers
     }
-    
+
     func requestFor(socketID: String, channelName: String) -> URLRequest? {
         do{
             var request = URLRequest(url: URL(string: endpoint)!)
             request.httpMethod = "POST"
-            
+
             if (headers.values.contains("application/json")){
                 let jsonEncoder = JSONEncoder()
                 request.httpBody = try jsonEncoder.encode(["socket_id": socketID, "channel_name": channelName])
             } else{
                 request.httpBody = "socket_id=\(socketID)&channel_name=\(channelName)".data(using: String.Encoding.utf8)
             }
-            
+
             for (key, value) in headers {
                 request.addValue(value, forHTTPHeaderField: key)
             }
@@ -313,7 +313,7 @@ class AuthRequestBuilder: AuthRequestBuilderProtocol {
             }
             return nil
         }
-        
+
     }
 }
 
@@ -322,7 +322,7 @@ class StreamHandler: NSObject, FlutterStreamHandler {
         SwiftPusherPlugin.eventSink = events
         return nil;
     }
-    
+
     public func onCancel(withArguments arguments: Any?) -> FlutterError? {
         return nil;
     }
@@ -356,6 +356,7 @@ struct PusherEventStreamMessage: Codable {
 struct ConnectionStateChange: Codable {
     var currentState: String
     var previousState: String
+    var socketId: String
 }
 
 struct Event: Codable {

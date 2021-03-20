@@ -135,7 +135,8 @@ public class PusherPlugin implements MethodCallHandler {
             if (options.has("auth")) {
                 final JSONObject auth = options.getJSONObject("auth");
                 final String endpoint = auth.getString("endpoint");
-                final Type mapType = new TypeToken<Map<String, String>>() {}.getType();
+                final Type mapType = new TypeToken<Map<String, String>>() {
+                }.getType();
                 final Map<String, String> headers = new Gson().fromJson(auth.get("headers").toString(), mapType);
 
                 pusherOptions.setAuthorizer(getAuthorizer(endpoint, headers));
@@ -202,6 +203,8 @@ public class PusherPlugin implements MethodCallHandler {
                             final JSONObject connectionStateChangeJson = new JSONObject();
                             connectionStateChangeJson.put("currentState", change.getCurrentState().toString());
                             connectionStateChangeJson.put("previousState", change.getPreviousState().toString());
+                            connectionStateChangeJson.put("socketId", pusher.getConnection()
+                                    .getSocketId());
                             eventStreamMessageJson.put("connectionStateChange", connectionStateChangeJson);
                             eventSink.success(eventStreamMessageJson.toString());
                         } catch (Exception e) {

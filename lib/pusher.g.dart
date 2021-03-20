@@ -1,11 +1,9 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-
 part of 'pusher.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
-
 InitArgs _$InitArgsFromJson(Map<String, dynamic> json) {
   return InitArgs(
     json['appKey'] as String,
@@ -21,7 +19,6 @@ Map<String, dynamic> _$InitArgsToJson(InitArgs instance) => <String, dynamic>{
       'options': instance.options,
       'isLoggingEnabled': instance.isLoggingEnabled,
     };
-
 BindArgs _$BindArgsFromJson(Map<String, dynamic> json) {
   return BindArgs(
     channelName: json['channelName'] as String,
@@ -35,7 +32,6 @@ Map<String, dynamic> _$BindArgsToJson(BindArgs instance) => <String, dynamic>{
       'eventName': instance.eventName,
       'data': instance.data,
     };
-
 PusherOptions _$PusherOptionsFromJson(Map<String, dynamic> json) {
   return PusherOptions(
     auth: json['auth'] == null
@@ -51,7 +47,6 @@ PusherOptions _$PusherOptionsFromJson(Map<String, dynamic> json) {
 
 Map<String, dynamic> _$PusherOptionsToJson(PusherOptions instance) {
   final val = <String, dynamic>{};
-
   void writeNotNull(String key, dynamic value) {
     if (value != null) {
       val[key] = value;
@@ -81,12 +76,12 @@ Map<String, dynamic> _$PusherAuthToJson(PusherAuth instance) =>
       'endpoint': instance.endpoint,
       'headers': instance.headers,
     };
-
 ConnectionStateChange _$ConnectionStateChangeFromJson(
     Map<String, dynamic> json) {
   return ConnectionStateChange(
     currentState: json['currentState'] as String,
     previousState: json['previousState'] as String,
+    socketId: json['socketId'] as String,
   );
 }
 
@@ -95,8 +90,8 @@ Map<String, dynamic> _$ConnectionStateChangeToJson(
     <String, dynamic>{
       'currentState': instance.currentState,
       'previousState': instance.previousState,
+      'socketId': instance.socketId,
     };
-
 ConnectionError _$ConnectionErrorFromJson(Map<String, dynamic> json) {
   return ConnectionError(
     message: json['message'] as String,
@@ -111,7 +106,6 @@ Map<String, dynamic> _$ConnectionErrorToJson(ConnectionError instance) =>
       'code': instance.code,
       'exception': instance.exception,
     };
-
 Event _$EventFromJson(Map<String, dynamic> json) {
   return Event(
     channel: json['channel'] as String,
@@ -125,7 +119,6 @@ Map<String, dynamic> _$EventToJson(Event instance) => <String, dynamic>{
       'event': instance.event,
       'data': instance.data,
     };
-
 PusherEventStreamMessage _$PusherEventStreamMessageFromJson(
     Map<String, dynamic> json) {
   return PusherEventStreamMessage(
