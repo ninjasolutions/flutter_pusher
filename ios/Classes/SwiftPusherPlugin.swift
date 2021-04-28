@@ -66,7 +66,7 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
                 authMethod: initArgs.options.auth != nil ? AuthMethod.authRequestBuilder(authRequestBuilder: AuthRequestBuilder(endpoint: initArgs.options.auth!.endpoint, headers: initArgs.options.auth!.headers)): .noMethod,
                 host: initArgs.options.host != nil ? .host(initArgs.options.host!) : (initArgs.options.cluster != nil ? .cluster(initArgs.options.cluster!) : .host("ws.pusherapp.com")),
                 port: initArgs.options.port ?? (initArgs.options.encrypted ?? true ? 443 : 80),
-                encrypted: initArgs.options.encrypted ?? true,
+                useTLS: initArgs.options.encrypted ?? true,
                 activityTimeout: Double(initArgs.options.activityTimeout ?? 30000) / 1000
             )
             
