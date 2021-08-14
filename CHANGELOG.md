@@ -1,3 +1,7 @@
+## 1.0.4
+
+- Fixes data being ignored when data is a list instead of a JSON object. (@josh-burton)
+
 ## 1.0.3
 
 - Update PusherSwift library from 7.2.0 to 8.0.0
