@@ -117,8 +117,8 @@ public class PusherPlugin implements MethodCallHandler {
             for (Map.Entry<String, Channel> entry : channels.entrySet()) {
                 String name = entry.getKey();
                 pusher.unsubscribe(name);
-                channels.remove(name);
             }
+            channels = new HashMap<>();
         }
 
         try {

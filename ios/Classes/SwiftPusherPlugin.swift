@@ -66,7 +66,7 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
                 authMethod: initArgs.options.auth != nil ? AuthMethod.authRequestBuilder(authRequestBuilder: AuthRequestBuilder(endpoint: initArgs.options.auth!.endpoint, headers: initArgs.options.auth!.headers)): .noMethod,
                 host: initArgs.options.host != nil ? .host(initArgs.options.host!) : (initArgs.options.cluster != nil ? .cluster(initArgs.options.cluster!) : .host("ws.pusherapp.com")),
                 port: initArgs.options.port ?? (initArgs.options.encrypted ?? true ? 443 : 80),
-                encrypted: initArgs.options.encrypted ?? true,
+                useTLS: initArgs.options.encrypted ?? true,
                 activityTimeout: Double(initArgs.options.activityTimeout ?? 30000) / 1000
             )
             
@@ -173,8 +173,8 @@ public class SwiftPusherPlugin: NSObject, FlutterPlugin, PusherDelegate {
                 unbindIfBound(channelName: bindArgs.channelName, eventName: bindArgs.eventName)
                 SwiftPusherPlugin.bindedEvents[bindArgs.channelName + bindArgs.eventName] = channelObj.bind(eventName: bindArgs.eventName, callback: { data in
                     do {
-                        if let dataObj = data as? [String : AnyObject] {
-                            let pushJsonData = try! JSONSerialization.data(withJSONObject: dataObj)
+                       if JSONSerialization.isValidJSONObject(data) {
+                            let pushJsonData = try! JSONSerialization.data(withJSONObject: data)
                             let pushJsonString = NSString(data: pushJsonData, encoding: String.Encoding.utf8.rawValue)
                             let event = Event(channel: bindArgs.channelName, event: bindArgs.eventName, data: pushJsonString! as String)
                             let message = PusherEventStreamMessage(event: event, connectionStateChange:  nil)
