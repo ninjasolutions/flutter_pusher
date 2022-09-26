@@ -1,5 +1,7 @@
 package com.ninjasolutions.pusher;
 
+import androidx.annotation.NonNull;
+
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -31,6 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.plugin.common.EventChannel;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
@@ -43,7 +46,7 @@ import static com.ninjasolutions.pusher.PusherPlugin.TAG;
 /**
  * PusherPlugin
  */
-public class PusherPlugin implements MethodCallHandler {
+public class PusherPlugin implements FlutterPlugin, MethodCallHandler {
     private static Pusher pusher;
     private static Map<String, Channel> channels = new HashMap<>();
     private static EventChannelListener eventListener;
@@ -60,12 +63,23 @@ public class PusherPlugin implements MethodCallHandler {
     public static void registerWith(Registrar registrar) {
         final MethodChannel channel = new MethodChannel(registrar.messenger(), "plugins.indoor.solutions/pusher");
         final EventChannel eventStream = new EventChannel(registrar.messenger(), "plugins.indoor.solutions/pusherStream");
+        channel.setMethodCallHandler(new PusherPlugin());
+        PusherPlugin.migratedPluginRegistration(channel, eventStream);
+    }
 
+    @Override
+    public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+        final MethodChannel channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "plugins.indoor.solutions/pusher");
+        final EventChannel eventStream = new EventChannel(flutterPluginBinding.getBinaryMessenger(), "plugins.indoor.solutions/pusherStream");
+        channel.setMethodCallHandler(this);
+        PusherPlugin.migratedPluginRegistration(channel, eventStream);
+    }
+
+    public static void migratedPluginRegistration(MethodChannel channel, EventChannel eventStream) {
         eventListener = new EventChannelListener();
         eventListenerPrivate = new PrivateChannelChannelListener();
         eventListenerPresence = new PresenceChannelChannelListener();
 
-        channel.setMethodCallHandler(new PusherPlugin());
         eventStream.setStreamHandler(new EventChannel.StreamHandler() {
             @Override
             public void onListen(Object args, final EventChannel.EventSink eventSink) {
@@ -396,6 +410,11 @@ public class PusherPlugin implements MethodCallHandler {
                 e.printStackTrace();
             }
         }
+    }
+
+    @Override
+    public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+        // TODO implement
     }
 }
 
