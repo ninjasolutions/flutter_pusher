@@ -9,9 +9,7 @@ part of 'pusher.dart';
 InitArgs _$InitArgsFromJson(Map<String, dynamic> json) {
   return InitArgs(
     json['appKey'] as String,
-    json['options'] == null
-        ? null
-        : PusherOptions.fromJson(json['options'] as Map<String, dynamic>),
+    PusherOptions.fromJson(json['options'] as Map<String, dynamic>),
     isLoggingEnabled: json['isLoggingEnabled'] as bool,
   );
 }
@@ -70,7 +68,7 @@ Map<String, dynamic> _$PusherOptionsToJson(PusherOptions instance) {
 PusherAuth _$PusherAuthFromJson(Map<String, dynamic> json) {
   return PusherAuth(
     json['endpoint'] as String,
-    headers: (json['headers'] as Map<String, dynamic>)?.map(
+    headers: (json['headers'] as Map<String, dynamic>).map(
       (k, e) => MapEntry(k, e as String),
     ),
   );

@@ -1,3 +1,7 @@
+## 2.0.0
+
+* Migrate to null safety
+
 ## 1.0.4
 
 - Fixes data being ignored when data is a list instead of a JSON object. (@josh-burton)
