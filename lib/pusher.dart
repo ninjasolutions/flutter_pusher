@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'dart:convert';
-
 part 'pusher.g.dart';
 
 enum PusherConnectionState {
@@ -16,11 +15,11 @@ enum PusherConnectionState {
 /// Used to listen to events sent through pusher
 class Pusher {
   Pusher._();
-
   static const _channel =
       const MethodChannel('plugins.indoor.solutions/pusher');
   static const _eventChannel =
       const EventChannel('plugins.indoor.solutions/pusherStream');
+
 
   static void Function(ConnectionStateChange)? _onConnectionStateChange;
   static void Function(ConnectionError)? _onError;
@@ -34,14 +33,16 @@ class Pusher {
     PusherOptions options, {
     bool enableLogging = false,
   }) async {
-    _eventChannel.receiveBroadcastStream().listen(_handleEvent);
 
+    assert(appKey != null);
+    assert(options != null);
+
+    _eventChannel.receiveBroadcastStream().listen(_handleEvent);
     final initArgs = jsonEncode(InitArgs(
       appKey,
       options,
       isLoggingEnabled: enableLogging,
     ).toJson());
-
     await _channel.invokeMethod('init', initArgs);
   }
 
@@ -79,7 +80,6 @@ class Pusher {
       eventName: eventName,
       data: data,
     ).toJson());
-
     await _channel.invokeMethod('trigger', bindArgs);
   }
 
@@ -92,7 +92,6 @@ class Pusher {
       channelName: channelName,
       eventName: eventName,
     ).toJson());
-
     eventCallbacks[channelName + eventName] = onEvent;
     await _channel.invokeMethod('bind', bindArgs);
   }
@@ -102,14 +101,12 @@ class Pusher {
       channelName: channelName,
       eventName: eventName,
     ).toJson());
-
     eventCallbacks.remove(channelName + eventName);
     await _channel.invokeMethod('unbind', bindArgs);
   }
 
   static void _handleEvent([dynamic arguments]) {
     var message = PusherEventStreamMessage.fromJson(jsonDecode(arguments));
-
     if (message.isEvent) {
       var callback =
           eventCallbacks[message.event!.channel + message.event!.event];
@@ -133,12 +130,9 @@ class InitArgs {
   final String appKey;
   final PusherOptions options;
   final bool isLoggingEnabled;
-
   InitArgs(this.appKey, this.options, {this.isLoggingEnabled = false});
-
   factory InitArgs.fromJson(Map<String, dynamic> json) =>
       _$InitArgsFromJson(json);
-
   Map<String, dynamic> toJson() => _$InitArgsToJson(this);
 }
 
@@ -146,6 +140,7 @@ class InitArgs {
 class BindArgs {
   final String channelName;
   final String eventName;
+
   final String? data;
 
   BindArgs({
@@ -156,7 +151,6 @@ class BindArgs {
 
   factory BindArgs.fromJson(Map<String, dynamic> json) =>
       _$BindArgsFromJson(json);
-
   Map<String, dynamic> toJson() => _$BindArgsToJson(this);
 }
 
@@ -168,7 +162,6 @@ class PusherOptions {
   final int port;
   final bool encrypted;
   final int activityTimeout;
-
   PusherOptions({
     this.auth,
     this.cluster,
@@ -177,26 +170,24 @@ class PusherOptions {
     this.encrypted = true,
     this.activityTimeout = 30000,
   });
-
   factory PusherOptions.fromJson(Map<String, dynamic> json) =>
       _$PusherOptionsFromJson(json);
-
   Map<String, dynamic> toJson() => _$PusherOptionsToJson(this);
 }
 
 @JsonSerializable()
 class PusherAuth {
   final String endpoint;
+
   final Map<String, String>? headers;
+
 
   PusherAuth(
     this.endpoint, {
     this.headers = const {'Content-Type': 'application/x-www-form-urlencoded'},
   });
-
   factory PusherAuth.fromJson(Map<String, dynamic> json) =>
       _$PusherAuthFromJson(json);
-
   Map<String, dynamic> toJson() => _$PusherAuthToJson(this);
 }
 
@@ -205,14 +196,15 @@ class ConnectionStateChange {
   final String currentState;
   final String previousState;
 
+
   ConnectionStateChange({
     required this.currentState,
     required this.previousState,
   });
 
+
   factory ConnectionStateChange.fromJson(Map<String, dynamic> json) =>
       _$ConnectionStateChangeFromJson(json);
-
   Map<String, dynamic> toJson() => _$ConnectionStateChangeToJson(this);
 }
 
@@ -228,9 +220,9 @@ class ConnectionError {
     required this.exception,
   });
 
+
   factory ConnectionError.fromJson(Map<String, dynamic> json) =>
       _$ConnectionErrorFromJson(json);
-
   Map<String, dynamic> toJson() => _$ConnectionErrorToJson(this);
 }
 
@@ -238,6 +230,7 @@ class ConnectionError {
 class Event {
   final String channel;
   final String event;
+
   final String? data;
 
   Event({
@@ -246,8 +239,8 @@ class Event {
     this.data,
   });
 
-  factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
 
+  factory Event.fromJson(Map<String, dynamic> json) => _$EventFromJson(json);
   Map<String, dynamic> toJson() => _$EventToJson(this);
 }
 
@@ -273,21 +266,19 @@ class Channel {
     if (!eventName.startsWith('client-')) {
       eventName = "client-$eventName";
     }
-
     await Pusher._trigger(name, eventName, data ?? "{}");
   }
 }
 
 @JsonSerializable()
 class PusherEventStreamMessage {
+
   final Event? event;
   final ConnectionStateChange? connectionStateChange;
   final ConnectionError? connectionError;
 
   bool get isEvent => event != null;
-
   bool get isConnectionStateChange => connectionStateChange != null;
-
   bool get isConnectionError => connectionError != null;
 
   PusherEventStreamMessage({
@@ -298,6 +289,5 @@ class PusherEventStreamMessage {
 
   factory PusherEventStreamMessage.fromJson(Map<String, dynamic> json) =>
       _$PusherEventStreamMessageFromJson(json);
-
   Map<String, dynamic> toJson() => _$PusherEventStreamMessageToJson(this);
 }
