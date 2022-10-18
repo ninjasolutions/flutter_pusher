@@ -10,9 +10,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  Event lastEvent;
-  String lastConnectionState;
-  Channel channel;
+  Event? lastEvent;
+  String? lastConnectionState;
+  Channel? channel;
 
   var channelController = TextEditingController(text: "my-channel");
   var eventController = TextEditingController(text: "my-event");
@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 _buildInfo(),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("Connect"),
                   onPressed: () {
                     Pusher.connect(onConnectionStateChange: (x) async {
@@ -63,7 +63,7 @@ class _MyAppState extends State<MyApp> {
                     });
                   },
                 ),
-                RaisedButton(
+                ElevatedButton(
                   child: Text("Disconnect"),
                   onPressed: () {
                     Pusher.disconnect();
@@ -79,7 +79,7 @@ class _MyAppState extends State<MyApp> {
                         decoration: InputDecoration(hintText: "Channel"),
                       ),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Subscribe"),
                       onPressed: () async {
                         channel =
@@ -97,7 +97,7 @@ class _MyAppState extends State<MyApp> {
                         decoration: InputDecoration(hintText: "Channel"),
                       ),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Unsubscribe"),
                       onPressed: () async {
                         await Pusher.unsubscribe(channelController.text);
@@ -115,10 +115,10 @@ class _MyAppState extends State<MyApp> {
                         decoration: InputDecoration(hintText: "Event"),
                       ),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Bind"),
                       onPressed: () async {
-                        await channel.bind(eventController.text, (x) {
+                        await channel!.bind(eventController.text, (x) {
                           if (mounted)
                             setState(() {
                               lastEvent = x;
@@ -137,10 +137,10 @@ class _MyAppState extends State<MyApp> {
                         decoration: InputDecoration(hintText: "Event"),
                       ),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Unbind"),
                       onPressed: () async {
-                        await channel.unbind(eventController.text);
+                        await channel!.unbind(eventController.text);
                       },
                     )
                   ],
@@ -154,10 +154,10 @@ class _MyAppState extends State<MyApp> {
                         decoration: InputDecoration(hintText: "Trigger"),
                       ),
                     ),
-                    RaisedButton(
+                    ElevatedButton(
                       child: Text("Trigger"),
                       onPressed: () async {
-                        await channel.trigger(triggerController.text,
+                        await channel!.trigger(triggerController.text,
                             data:
                                 '{"testValue": 123, "anotherOne": false, "nested": {"w0t": "m8"}}');
                       },
